@@ -6,6 +6,7 @@
     <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign in</string>
     <string name="action_sign_up">Create new Account</string>
+    <string name="action_create">Create</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="slogan">Create the perfect study group.</string>
     <string name="error_invalid_email">This email address is invalid</string>
@@ -15,4 +16,8 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="title_activity_register">RegisterActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 </resources>

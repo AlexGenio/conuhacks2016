@@ -4,17 +4,7 @@
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    tools:context="com.conu.gpa.LoginActivity">
-
-    <!-- Login progress -->
-    <ProgressBar
-        android:id="@+id/login_progress"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:visibility="gone" />
-
+    tools:context="com.conu.gpa.RegisterActivity">
     <ScrollView
         android:id="@+id/login_form"
         android:layout_width="match_parent"
@@ -78,6 +68,11 @@
                     android:focusableInTouchMode="true"
                     android:layout_width="0px"
                     android:layout_height="0px"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/profile"
+                    android:layout_gravity="center_horizontal" />
 
                 <android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"
@@ -133,4 +128,5 @@
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
+
 </LinearLayout>
