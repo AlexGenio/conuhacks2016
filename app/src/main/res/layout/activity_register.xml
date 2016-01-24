@@ -142,7 +142,7 @@
 
                 </android.support.design.widget.TextInputLayout>
                 <Button
-                    android:id="@+id/sign_up"
+                    android:id="@+id/create"
                     style="?android:textAppearanceSmall"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

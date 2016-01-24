@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.widget.ImageView;
+import android.util.Base64;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -19,6 +20,7 @@ import com.conu.gpa.Globals;
 import com.conu.gpa.LoginActivity;
 import com.conu.gpa.adapters.PeopleAdapter;
 import com.conu.gpa.classes.Course;
+import com.conu.gpa.RegisterActivity;
 import com.conu.gpa.classes.Student;
 import com.conu.gpa.fragments.CoursesFragment;
 import com.conu.gpa.fragments.PeopleFragment;
@@ -27,6 +29,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,6 +78,60 @@ public class GPAAPI {
                 // the POST parameters:
                 params.put("username", username);
                 params.put("password", password);
+                return params;
+            }
+        };
+
+        int socketTimeout = 30000;
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        postRequest.setRetryPolicy(policy);
+        request.add(postRequest);
+    }
+    public static void createAccount(final Context c, final String username, final Bitmap picture,
+                                     final String password, final String school, final String name, final String description, final RegisterActivity a)
+    {
+        RequestQueue request = Volley.newRequestQueue(c);
+        StringRequest postRequest = new StringRequest(Request.Method.POST, Globals.BASE_URL + "register.php",new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject root = new JSONObject(response);
+                    if(!root.has("error") && root.has("token")){
+                        Globals.saveUser(c, a);
+                        Globals.setToken(c, a, root.getString("token"));
+                        a.afterSuccess();
+                    }else{
+                        a.afterFailure();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams()
+            {
+                String ba1;
+                Map<String, String>  params = new HashMap<>();
+                ByteArrayOutputStream bao = new ByteArrayOutputStream();
+                picture.compress(Bitmap.CompressFormat.JPEG, 50, bao);
+                byte[] ba = bao.toByteArray();
+                ba1 = Base64.encodeToString(ba,Base64.DEFAULT);
+                // the POST parameters:
+                params.put("username", username);
+                params.put("password", password);
+                params.put("name",name);
+                params.put("school",school);
+                params.put("picture",ba1);
+                params.put("description",description);
                 return params;
             }
         };
