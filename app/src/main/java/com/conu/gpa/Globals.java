@@ -62,7 +62,7 @@ public class Globals {
                 c.getPackageName(), Context.MODE_PRIVATE);
         prefs.edit().putString("username", Globals.user.username)
                 .putString("name", Globals.user.name)
-                .putString("pic", Globals.user.pictureLink)
+                .putString("pictureLink", Globals.user.pictureLink)
                 .putString("description", Globals.user.description)
                 .putString("school", Globals.user.schoolName).apply();
     }

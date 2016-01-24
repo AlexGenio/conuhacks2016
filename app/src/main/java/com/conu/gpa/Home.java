@@ -9,10 +9,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.conu.gpa.fragments.CoursesFragment;
 import com.conu.gpa.networking.GPAAPI;
+
+import java.net.URL;
 
 public class Home extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -44,8 +47,16 @@ public class Home extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        ((TextView) navigationView.getHeaderView(0).findViewById(R.id.name)).setText(Globals.user.name);
-        ((TextView) navigationView.getHeaderView(0).findViewById(R.id.school)).setText(Globals.user.schoolName);
+        if(Globals.user != null && Globals.user.pictureLink != null){
+
+            GPAAPI.GetImage(getApplicationContext(),
+                    ((ImageView) navigationView.getHeaderView(0).findViewById(R.id.imageView)),
+                    Globals.BASE_URL + Globals.user.pictureLink);
+
+            ((TextView) navigationView.getHeaderView(0).findViewById(R.id.name)).setText(Globals.user.name);
+            ((TextView) navigationView.getHeaderView(0).findViewById(R.id.school)).setText(Globals.user.schoolName);
+
+        }
     }
 
     @Override

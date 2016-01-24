@@ -3,6 +3,8 @@ package com.conu.gpa.networking;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.widget.ImageView;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -10,6 +12,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.conu.gpa.Globals;
@@ -79,6 +82,35 @@ public class GPAAPI {
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
         postRequest.setRetryPolicy(policy);
         request.add(postRequest);
+    }
+
+    public static void GetImage(Context c, final ImageView img, String url){
+        RequestQueue queue = Volley.newRequestQueue(c);
+        ImageLoader imageLoader = new ImageLoader(queue, new ImageLoader.ImageCache() {
+            @Override
+            public Bitmap getBitmap(String url) {
+                return null;
+            }
+
+            @Override
+            public void putBitmap(String url, Bitmap bitmap) {
+
+            }
+        });
+        imageLoader.get(url, new ImageLoader.ImageListener() {
+            @Override
+            public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                Bitmap b = response.getBitmap();
+                if(b != null) {
+                    img.setImageBitmap(Globals.getCircleBitmap(b));
+                }
+            }
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
     }
 
     public static void Logout(final Context c, final String token, final Activity a) {
@@ -271,7 +303,7 @@ public class GPAAPI {
                         try{
                             JSONObject curr = new JSONObject(response);
                             Globals.user.courses.add(new Course(
-                                    curr.getString("name"),
+                                    curr.getString("class"),
                                     Globals.user.schoolName,
                                     curr.getInt("id")
                             ));
