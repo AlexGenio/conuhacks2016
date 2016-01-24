@@ -31,7 +31,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.conu.gpa.classes.Student;
 import com.conu.gpa.networking.GPAAPI;
 
 import java.util.ArrayList;

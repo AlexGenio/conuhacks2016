@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.conu.gpa.fragments.CoursesFragment;
 import com.conu.gpa.networking.GPAAPI;
 
 public class Home extends AppCompatActivity
@@ -90,7 +91,10 @@ public class Home extends AppCompatActivity
         if (id == R.id.nav_camera) {
             // Handle the camera action
         } else if (id == R.id.nav_gallery) {
-
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, new CoursesFragment()).commit();
+            if(getSupportActionBar() != null)
+                getSupportActionBar().setTitle("Courses");
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_share) {

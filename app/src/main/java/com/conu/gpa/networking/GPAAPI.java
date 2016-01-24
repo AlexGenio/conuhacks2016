@@ -14,8 +14,11 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.conu.gpa.Globals;
 import com.conu.gpa.LoginActivity;
+import com.conu.gpa.classes.Course;
 import com.conu.gpa.classes.Student;
+import com.conu.gpa.fragments.CoursesFragment;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -102,6 +105,150 @@ public class GPAAPI {
                 Map<String, String>  params = new HashMap<>();
                 // the POST parameters:
                 params.put("token", token);
+                return params;
+            }
+        };
+
+        int socketTimeout = 30000;
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        postRequest.setRetryPolicy(policy);
+        request.add(postRequest);
+    }
+
+    public static void GetUserCourses(final Context c, final CoursesFragment frag){
+        RequestQueue request = Volley.newRequestQueue(c);
+
+        StringRequest postRequest = new StringRequest(Request.Method.POST, Globals.BASE_URL + "getUserCourses.php",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        try{
+                            JSONObject root = new JSONObject(response);
+                            JSONArray courses = root.getJSONArray("courses");
+
+                            for(int i = 0; i < courses.length(); i++){
+                                JSONObject curr = courses.getJSONObject(i);
+                                Globals.user.courses.add(new Course(
+                                        curr.getString("name"),
+                                        Globals.user.schoolName,
+                                        curr.getInt("id")
+                                ));
+                            }
+
+                            frag.markCourses();
+
+                        } catch (JSONException e){
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams()
+            {
+                Map<String, String>  params = new HashMap<>();
+                // the POST parameters:
+                params.put("token", Globals.getToken(c, frag.getActivity()));
+                return params;
+            }
+        };
+
+        int socketTimeout = 30000;
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        postRequest.setRetryPolicy(policy);
+        request.add(postRequest);
+    }
+
+    public static void GetAllCourses(final Context c, final CoursesFragment frag){
+        RequestQueue request = Volley.newRequestQueue(c);
+
+        StringRequest postRequest = new StringRequest(Request.Method.POST, Globals.BASE_URL + "getSchoolCourses.php",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        try{
+                            JSONObject root = new JSONObject(response);
+                            JSONArray courses = root.getJSONArray("courses");
+
+                            for(int i = 0; i < courses.length(); i++){
+                                JSONObject curr = courses.getJSONObject(i);
+                                frag.courses.add(new Course(
+                                        curr.getString("name"),
+                                        Globals.user.schoolName,
+                                        curr.getInt("id")
+                                ));
+                            }
+
+                            frag.populateList();
+
+                        } catch (JSONException e){
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams()
+            {
+                Map<String, String>  params = new HashMap<>();
+                // the POST parameters:
+                params.put("token", Globals.getToken(c, frag.getActivity()));
+                return params;
+            }
+        };
+
+        int socketTimeout = 30000;
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        postRequest.setRetryPolicy(policy);
+        request.add(postRequest);
+    }
+
+    public static void RemoveCourse(final Context c, final CoursesFragment frag, final Integer id){
+        RequestQueue request = Volley.newRequestQueue(c);
+
+        StringRequest postRequest = new StringRequest(Request.Method.POST, Globals.BASE_URL + "removeCourses.php",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        Globals.removeClass(Globals.user.courses, id);
+                        frag.markCourses();
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams()
+            {
+                Map<String, String>  params = new HashMap<>();
+                // the POST parameters:
+                params.put("token", Globals.getToken(c, frag.getActivity()));
+                params.put("CID", id.toString());
                 return params;
             }
         };

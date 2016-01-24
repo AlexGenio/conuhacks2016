@@ -12,7 +12,10 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 
+import com.conu.gpa.classes.Course;
 import com.conu.gpa.classes.Student;
+
+import java.util.LinkedList;
 
 public class Globals {
 
@@ -73,6 +76,36 @@ public class Globals {
         Globals.user.description = prefs.getString("description", "");
         Globals.user.pictureLink = prefs.getString("pictureLink", "");
         Globals.user.schoolName = prefs.getString("school", "");
+    }
+
+    public static void removeClass(LinkedList<Course> courses, int id){
+        LinkedList<Course> n_courses = new LinkedList<>();
+        for(Course c : courses){
+            if(c.id != id){
+                n_courses.add(c);
+            }
+        }
+        courses = n_courses;
+    }
+
+    public static boolean in(LinkedList<Course> courses, int id){
+        for(Course c : courses){
+            if(c.id == id){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean in(LinkedList<Course> courses, LinkedList<Course> courses_2){
+        for(Course c : courses){
+            for(Course c2 : courses_2){
+                if(c.id.equals(c2.id)){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }
