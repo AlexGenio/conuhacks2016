@@ -29,6 +29,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.soundcloud.android.crop.Crop;
+
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -45,7 +48,7 @@ public class RegisterActivity extends AppCompatActivity {
          Bitmap bm = BitmapFactory.decodeResource(getResources(),
                 R.drawable.test);
         setContentView(R.layout.activity_register);
-        ImageView img = (ImageView) findViewById(R.id.profile);
+        final ImageView img = (ImageView) findViewById(R.id.profile);
         img.setImageBitmap(Globals.getCroppedBitmap(bm));
         img.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,10 +65,8 @@ public class RegisterActivity extends AppCompatActivity {
                             return;
                         }
                     }
-                    Intent captureIntent = new Intent(
-                            MediaStore.ACTION_IMAGE_CAPTURE);
-                    // we will handle the returned data in onActivityResult
-                    startActivityForResult(captureIntent, CAMERA_CAPTURE);
+                    img.setImageDrawable(null);
+                    Crop.pickImage(RegisterActivity.this);
                 } catch (ActivityNotFoundException anfe) {
                     //Toast toast = Toast.makeText(, "This device doesn't support the crop action!", Toast.LENGTH_SHORT);
                    // toast.show();
@@ -74,7 +75,7 @@ public class RegisterActivity extends AppCompatActivity {
         });
 
     }
-    @Override
+    /*@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             if (requestCode == CAMERA_CAPTURE) {
@@ -92,8 +93,36 @@ public class RegisterActivity extends AppCompatActivity {
                 picView.setImageBitmap(Globals.getCroppedBitmap(thePic));
             }
         }
+    }*/
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent result) {
+        if (requestCode == Crop.REQUEST_PICK && resultCode == RESULT_OK) {
+            beginCrop(result.getData());
+        } else if (requestCode == Crop.REQUEST_CROP) {
+            handleCrop(resultCode, result);
+        }
+    }
+    private void beginCrop(Uri source) {
+        Uri destination = Uri.fromFile(new File(getCacheDir(), "cropped"));
+        Crop.of(source, destination).asSquare().start(this);
     }
 
+    private void handleCrop(int resultCode, Intent result) {
+        if (resultCode == RESULT_OK) {
+            ImageView img = (ImageView) findViewById(R.id.profile);
+            //img.setImageURI(Crop.getOutput(result));
+            InputStream image_stream = null;
+            try {
+                image_stream = getContentResolver().openInputStream(Crop.getOutput(result));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            Bitmap bitmap= BitmapFactory.decodeStream(image_stream );
+            img.setImageBitmap(Globals.getCroppedBitmap(bitmap));
+        } else if (resultCode == Crop.RESULT_ERROR) {
+            Toast.makeText(this, Crop.getError(result).getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
     private void performCrop() {
         // take care of exceptions
         try {
