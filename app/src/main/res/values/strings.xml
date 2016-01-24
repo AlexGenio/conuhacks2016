@@ -6,6 +6,7 @@
     <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign in</string>
     <string name="action_sign_up">Create new Account</string>
+    <string name="prompt_school">School</string>
     <string name="action_create">Create</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="slogan">Create the perfect study group.</string>
