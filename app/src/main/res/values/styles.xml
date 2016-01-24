@@ -8,6 +8,10 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="RegistrationTheme" parent="NoTitle">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimaryDark">#C2185B</item>
+    </style>
     <style name="NoTitle" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
