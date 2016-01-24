@@ -4,7 +4,8 @@
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    tools:context="com.conu.gpa.RegisterActivity">
+    tools:context="com.conu.gpa.RegisterActivity"
+    >
     <ScrollView
         android:id="@+id/login_form"
         android:layout_width="match_parent"
@@ -16,37 +17,17 @@
             android:layout_height="wrap_content">
 
             <RelativeLayout
-                android:background="@color/colorPrimary"
+                android:background="@color/colorAccent"
                 android:layout_width="match_parent"
-                android:layout_height="150dp">
+                android:layout_height="254dp">
 
-                <TextView
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentBottom="true"
+                <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:text="@string/app_name"
-                    android:textSize="30sp"
-                    android:paddingBottom="40dp"
-                    android:paddingLeft="20dp"
-                    android:paddingRight="@dimen/activity_horizontal_margin"
-                    android:paddingTop="@dimen/activity_vertical_margin"/>
-
-                <TextView
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#CCFFFFFF"
-                    android:text="@string/slogan"
-                    android:textSize="16sp"
-                    android:paddingBottom="20dp"
-                    android:paddingLeft="20dp"
-                    android:paddingRight="@dimen/activity_horizontal_margin"
-                    android:paddingTop="@dimen/activity_vertical_margin"/>
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:id="@+id/profile"
+                    android:layout_gravity="center_horizontal" />
 
             </RelativeLayout>
 
@@ -68,11 +49,6 @@
                     android:focusableInTouchMode="true"
                     android:layout_width="0px"
                     android:layout_height="0px"/>
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/profile"
-                    android:layout_gravity="center_horizontal" />
 
                 <android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"
