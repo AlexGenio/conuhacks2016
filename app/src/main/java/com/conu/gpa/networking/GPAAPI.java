@@ -17,9 +17,11 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.conu.gpa.Globals;
 import com.conu.gpa.LoginActivity;
+import com.conu.gpa.adapters.PeopleAdapter;
 import com.conu.gpa.classes.Course;
 import com.conu.gpa.classes.Student;
 import com.conu.gpa.fragments.CoursesFragment;
+import com.conu.gpa.fragments.PeopleFragment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -101,7 +103,7 @@ public class GPAAPI {
             @Override
             public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                 Bitmap b = response.getBitmap();
-                if(b != null) {
+                if (b != null) {
                     img.setImageBitmap(Globals.getCircleBitmap(b));
                 }
             }
@@ -339,6 +341,92 @@ public class GPAAPI {
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
         postRequest.setRetryPolicy(policy);
         request.add(postRequest);
+    }
+
+    public static void GetPeople(final Context c, final PeopleFragment frag){
+        RequestQueue request = Volley.newRequestQueue(c);
+
+        StringRequest postRequest = new StringRequest(Request.Method.POST, Globals.BASE_URL + "findStudentsByCourse.php",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        try{
+                            JSONObject root = new JSONObject(response);
+                            JSONArray courses = root.getJSONArray("students");
+
+                            for(int i = 0; i < courses.length(); i++){
+                                JSONObject curr = courses.getJSONObject(i);
+                                frag.people.add(new Student(
+                                        curr.getString("username"),
+                                        curr.getString("name"),
+                                        curr.getString("picture"),
+                                        Globals.user.schoolName,
+                                        curr.getString("description")
+                                ));
+                                GPAAPI.GetImage(c, frag.people.getLast(), frag);
+                            }
+
+                            frag.populateList();
+
+                        } catch (JSONException e){
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams()
+            {
+                Map<String, String>  params = new HashMap<>();
+                // the POST parameters:
+                params.put("token", Globals.getToken(c, frag.getActivity()));
+                return params;
+            }
+        };
+
+        int socketTimeout = 30000;
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        postRequest.setRetryPolicy(policy);
+        request.add(postRequest);
+    }
+
+    public static void GetImage(Context c, final Student u, final PeopleFragment parent){
+        RequestQueue queue = Volley.newRequestQueue(c);
+        ImageLoader imageLoader = new ImageLoader(queue, new ImageLoader.ImageCache() {
+            @Override
+            public Bitmap getBitmap(String url) {
+                return null;
+            }
+
+            @Override
+            public void putBitmap(String url, Bitmap bitmap) {
+
+            }
+        });
+        imageLoader.get(Globals.MEDIA_URL + u.pictureLink, new ImageLoader.ImageListener() {
+            @Override
+            public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                Bitmap b = response.getBitmap();
+                if (b != null) {
+                    u.picture = Globals.getCircleBitmap(b);
+                }
+                parent.markCourses();
+            }
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
     }
 
 }

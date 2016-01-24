@@ -23,4 +23,12 @@ public class Student {
         description = "";
         courses = new LinkedList<>();
     }
+
+    public Student(String username, String name, String pictureLink, String schoolName, String description) {
+        this.username = username;
+        this.name = name;
+        this.pictureLink = pictureLink;
+        this.schoolName = schoolName;
+        this.description = description;
+    }
 }

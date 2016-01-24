@@ -13,9 +13,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.conu.gpa.fragments.CoursesFragment;
+import com.conu.gpa.fragments.PeopleFragment;
 import com.conu.gpa.networking.GPAAPI;
-
-import java.net.URL;
 
 public class Home extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -26,17 +25,6 @@ public class Home extends AppCompatActivity
         setContentView(R.layout.activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        /*
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-        */
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -51,7 +39,7 @@ public class Home extends AppCompatActivity
 
             GPAAPI.GetImage(getApplicationContext(),
                     ((ImageView) navigationView.getHeaderView(0).findViewById(R.id.imageView)),
-                    Globals.BASE_URL + Globals.user.pictureLink);
+                    Globals.MEDIA_URL + Globals.user.pictureLink);
 
             ((TextView) navigationView.getHeaderView(0).findViewById(R.id.name)).setText(Globals.user.name);
             ((TextView) navigationView.getHeaderView(0).findViewById(R.id.school)).setText(Globals.user.schoolName);
@@ -107,11 +95,10 @@ public class Home extends AppCompatActivity
             if(getSupportActionBar() != null)
                 getSupportActionBar().setTitle("Courses");
         } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, new PeopleFragment()).commit();
+            if(getSupportActionBar() != null)
+                getSupportActionBar().setTitle("Find People");
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

@@ -21,8 +21,9 @@ public class Globals {
 
     public static Student user;
     public static String BASE_URL = "http://ec2-54-174-156-181.compute-1.amazonaws.com/prod/";
+    public static String MEDIA_URL = "http://ec2-54-174-156-181.compute-1.amazonaws.com/";
 
-    /*public static Bitmap getCircleBitmap(Bitmap bitmap) {
+    public static Bitmap getCircleBitmap(Bitmap bitmap) {
         final Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
                 bitmap.getHeight(), Bitmap.Config.ARGB_8888);
         final Canvas canvas = new Canvas(output);
@@ -43,7 +44,8 @@ public class Globals {
         bitmap.recycle();
 
         return output;
-    }*/
+    }
+
     public static Bitmap getCroppedBitmap(Bitmap bitmap) {
         Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
                 bitmap.getHeight(), Bitmap.Config.ARGB_8888);

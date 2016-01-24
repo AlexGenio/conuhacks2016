@@ -14,19 +14,6 @@
             android:id="@+id/nav_slideshow"
             android:icon="@drawable/ic_public_black_48dp"
             android:title="Find People" />
-        <item
-            android:id="@+id/nav_share"
-            android:icon="@drawable/ic_whatshot_black_48dp"
-            android:title="Top Schools" />
     </group>
-
-    <item android:title="Preferences">
-        <menu>
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_person_black_48dp"
-                android:title="My Account" />
-        </menu>
-    </item>
 
 </menu>
