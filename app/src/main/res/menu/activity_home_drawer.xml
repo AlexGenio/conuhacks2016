@@ -17,7 +17,7 @@
         <item
             android:id="@+id/nav_share"
             android:icon="@drawable/ic_whatshot_black_48dp"
-            android:title="Hot Courses" />
+            android:title="Top Schools" />
     </group>
 
     <item android:title="Preferences">
