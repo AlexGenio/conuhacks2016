@@ -230,7 +230,7 @@ public class GPAAPI {
                     @Override
                     public void onResponse(String response) {
 
-                        Globals.removeClass(Globals.user.courses, id);
+                        Globals.user.courses = Globals.removeClass(Globals.user.courses, id);
                         frag.markCourses();
 
                     }
@@ -249,6 +249,55 @@ public class GPAAPI {
                 // the POST parameters:
                 params.put("token", Globals.getToken(c, frag.getActivity()));
                 params.put("CID", id.toString());
+                return params;
+            }
+        };
+
+        int socketTimeout = 30000;
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        postRequest.setRetryPolicy(policy);
+        request.add(postRequest);
+    }
+
+    public static void AddCourse(final Context c, final CoursesFragment frag, final String name){
+        RequestQueue request = Volley.newRequestQueue(c);
+
+        StringRequest postRequest = new StringRequest(Request.Method.POST, Globals.BASE_URL + "createClass.php",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        try{
+                            JSONObject curr = new JSONObject(response);
+                            Globals.user.courses.add(new Course(
+                                    curr.getString("name"),
+                                    Globals.user.schoolName,
+                                    curr.getInt("id")
+                            ));
+
+                            frag.markCourses();
+
+                        } catch (JSONException e){
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams()
+            {
+                Map<String, String>  params = new HashMap<>();
+                // the POST parameters:
+                params.put("token", Globals.getToken(c, frag.getActivity()));
+                params.put("class", name);
                 return params;
             }
         };

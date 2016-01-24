@@ -78,14 +78,14 @@ public class Globals {
         Globals.user.schoolName = prefs.getString("school", "");
     }
 
-    public static void removeClass(LinkedList<Course> courses, int id){
+    public static LinkedList<Course> removeClass(LinkedList<Course> courses, int id){
         LinkedList<Course> n_courses = new LinkedList<>();
         for(Course c : courses){
             if(c.id != id){
                 n_courses.add(c);
             }
         }
-        courses = n_courses;
+        return n_courses;
     }
 
     public static boolean in(LinkedList<Course> courses, int id){

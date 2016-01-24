@@ -12,6 +12,7 @@ import com.conu.gpa.Globals;
 import com.conu.gpa.R;
 import com.conu.gpa.classes.Course;
 import com.conu.gpa.fragments.CoursesFragment;
+import com.conu.gpa.networking.GPAAPI;
 
 import java.util.LinkedList;
 
@@ -29,7 +30,7 @@ public class CourseAdapter extends ArrayAdapter<Course> {
     }
 
     @Override
-    public View getView(final int position, View convertView, final ViewGroup parent) {
+    public View getView(final int position, View convertView, final ViewGroup par) {
         View rowView = convertView;
         if (rowView == null) { // first time: inflate a new View
             Context context = getContext();
@@ -39,8 +40,8 @@ public class CourseAdapter extends ArrayAdapter<Course> {
             rowView = inflater.inflate(REGULAR_ROW_LAYOUT, null);
         }
 
-        Course curr = courses.get(position);
-        if(Globals.in(courses, Globals.user.courses)){
+        final Course curr = courses.get(position);
+        if(Globals.in(Globals.user.courses, curr.id)){
             rowView.findViewById(R.id.cont).setBackgroundColor(
                     ContextCompat.getColor(parent.getContext(), R.color.colorAccent));
             ((TextView) rowView.findViewById(R.id.name)).setTextColor(
@@ -55,6 +56,17 @@ public class CourseAdapter extends ArrayAdapter<Course> {
             ((TextView) rowView.findViewById(R.id.school)).setTextColor(
                     ContextCompat.getColor(parent.getContext(), R.color.lighter_grey));
         }
+
+        rowView.findViewById(R.id.cont).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(Globals.in(Globals.user.courses, curr.id)) {
+                    GPAAPI.RemoveCourse(parent.getContext(), parent, curr.id);
+                }else{
+                    GPAAPI.AddCourse(parent.getContext(), parent, curr.name);
+                }
+            }
+        });
 
         ((TextView) rowView.findViewById(R.id.name)).setText(courses.get(position).name);
         ((TextView) rowView.findViewById(R.id.school)).setText(courses.get(position).schoolName);
