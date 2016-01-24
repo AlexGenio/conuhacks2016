@@ -4,8 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.widget.ImageView;
 import android.util.Base64;
+import android.widget.ImageView;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -18,9 +18,8 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.conu.gpa.Globals;
 import com.conu.gpa.LoginActivity;
-import com.conu.gpa.adapters.PeopleAdapter;
-import com.conu.gpa.classes.Course;
 import com.conu.gpa.RegisterActivity;
+import com.conu.gpa.classes.Course;
 import com.conu.gpa.classes.Student;
 import com.conu.gpa.fragments.CoursesFragment;
 import com.conu.gpa.fragments.PeopleFragment;
@@ -36,7 +35,7 @@ import java.util.Map;
 public class GPAAPI {
 
     public static void Login(final Context c, final String username,
-                             final String password, final LoginActivity a){
+                             final String password, final LoginActivity a) {
 
         RequestQueue request = Volley.newRequestQueue(c);
 
@@ -46,7 +45,7 @@ public class GPAAPI {
                     public void onResponse(String response) {
                         try {
                             JSONObject root = new JSONObject(response);
-                            if(!root.has("error") && root.has("token")){
+                            if (!root.has("error") && root.has("token")) {
                                 Globals.user = new Student();
                                 Globals.user.username = root.getString("username");
                                 Globals.user.pictureLink = root.getString("picture");
@@ -56,7 +55,7 @@ public class GPAAPI {
                                 Globals.saveUser(c, a);
                                 Globals.setToken(c, a, root.getString("token"));
                                 a.afterSuccess();
-                            }else{
+                            } else {
                                 a.afterFailure();
                             }
                         } catch (JSONException e) {
@@ -72,9 +71,8 @@ public class GPAAPI {
                 }
         ) {
             @Override
-            protected Map<String, String> getParams()
-            {
-                Map<String, String>  params = new HashMap<>();
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
                 // the POST parameters:
                 params.put("username", username);
                 params.put("password", password);
@@ -88,20 +86,21 @@ public class GPAAPI {
         postRequest.setRetryPolicy(policy);
         request.add(postRequest);
     }
+
     public static void createAccount(final Context c, final String username, final Bitmap picture,
-                                     final String password, final String school, final String name, final String description, final RegisterActivity a)
-    {
+                                     final String password, final String school, final String name, final String description, final RegisterActivity a) {
         RequestQueue request = Volley.newRequestQueue(c);
-        StringRequest postRequest = new StringRequest(Request.Method.POST, Globals.BASE_URL + "register.php",new Response.Listener<String>() {
+        StringRequest postRequest = new StringRequest(Request.Method.POST, Globals.BASE_URL + "register.php", new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 try {
                     JSONObject root = new JSONObject(response);
-                    if(!root.has("error") && root.has("token")){
+                    if (!root.has("error")) {
                         Globals.saveUser(c, a);
-                        Globals.setToken(c, a, root.getString("token"));
+                        Globals.password = password;
+                        Globals.username = username;
                         a.afterSuccess();
-                    }else{
+                    } else {
                         a.afterFailure();
                     }
                 } catch (JSONException e) {
@@ -117,21 +116,20 @@ public class GPAAPI {
                 }
         ) {
             @Override
-            protected Map<String, String> getParams()
-            {
+            protected Map<String, String> getParams() {
                 String ba1;
-                Map<String, String>  params = new HashMap<>();
+                Map<String, String> params = new HashMap<>();
                 ByteArrayOutputStream bao = new ByteArrayOutputStream();
                 picture.compress(Bitmap.CompressFormat.JPEG, 50, bao);
                 byte[] ba = bao.toByteArray();
-                ba1 = Base64.encodeToString(ba,Base64.DEFAULT);
+                ba1 = Base64.encodeToString(ba, Base64.DEFAULT);
                 // the POST parameters:
                 params.put("username", username);
                 params.put("password", password);
-                params.put("name",name);
-                params.put("school",school);
-                params.put("picture",ba1);
-                params.put("description",description);
+                params.put("name", name);
+                params.put("school", school);
+                params.put("picture", ba1);
+                params.put("description", description);
                 return params;
             }
         };
@@ -143,7 +141,7 @@ public class GPAAPI {
         request.add(postRequest);
     }
 
-    public static void GetImage(Context c, final ImageView img, String url){
+    public static void GetImage(Context c, final ImageView img, String url) {
         RequestQueue queue = Volley.newRequestQueue(c);
         ImageLoader imageLoader = new ImageLoader(queue, new ImageLoader.ImageCache() {
             @Override
@@ -191,9 +189,8 @@ public class GPAAPI {
                 }
         ) {
             @Override
-            protected Map<String, String> getParams()
-            {
-                Map<String, String>  params = new HashMap<>();
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
                 // the POST parameters:
                 params.put("token", token);
                 return params;
@@ -207,7 +204,7 @@ public class GPAAPI {
         request.add(postRequest);
     }
 
-    public static void GetUserCourses(final Context c, final CoursesFragment frag){
+    public static void GetUserCourses(final Context c, final CoursesFragment frag) {
         RequestQueue request = Volley.newRequestQueue(c);
 
         StringRequest postRequest = new StringRequest(Request.Method.POST, Globals.BASE_URL + "getUserCourses.php",
@@ -215,11 +212,11 @@ public class GPAAPI {
                     @Override
                     public void onResponse(String response) {
 
-                        try{
+                        try {
                             JSONObject root = new JSONObject(response);
                             JSONArray courses = root.getJSONArray("courses");
 
-                            for(int i = 0; i < courses.length(); i++){
+                            for (int i = 0; i < courses.length(); i++) {
                                 JSONObject curr = courses.getJSONObject(i);
                                 Globals.user.courses.add(new Course(
                                         curr.getString("name"),
@@ -230,7 +227,7 @@ public class GPAAPI {
 
                             frag.markCourses();
 
-                        } catch (JSONException e){
+                        } catch (JSONException e) {
                             e.printStackTrace();
                         }
 
@@ -244,9 +241,8 @@ public class GPAAPI {
                 }
         ) {
             @Override
-            protected Map<String, String> getParams()
-            {
-                Map<String, String>  params = new HashMap<>();
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
                 // the POST parameters:
                 params.put("token", Globals.getToken(c, frag.getActivity()));
                 return params;
@@ -260,7 +256,7 @@ public class GPAAPI {
         request.add(postRequest);
     }
 
-    public static void GetAllCourses(final Context c, final CoursesFragment frag){
+    public static void GetAllCourses(final Context c, final CoursesFragment frag) {
         RequestQueue request = Volley.newRequestQueue(c);
 
         StringRequest postRequest = new StringRequest(Request.Method.POST, Globals.BASE_URL + "getSchoolCourses.php",
@@ -268,11 +264,11 @@ public class GPAAPI {
                     @Override
                     public void onResponse(String response) {
 
-                        try{
+                        try {
                             JSONObject root = new JSONObject(response);
                             JSONArray courses = root.getJSONArray("courses");
 
-                            for(int i = 0; i < courses.length(); i++){
+                            for (int i = 0; i < courses.length(); i++) {
                                 JSONObject curr = courses.getJSONObject(i);
                                 frag.courses.add(new Course(
                                         curr.getString("name"),
@@ -283,7 +279,7 @@ public class GPAAPI {
 
                             frag.populateList();
 
-                        } catch (JSONException e){
+                        } catch (JSONException e) {
                             e.printStackTrace();
                         }
 
@@ -297,9 +293,8 @@ public class GPAAPI {
                 }
         ) {
             @Override
-            protected Map<String, String> getParams()
-            {
-                Map<String, String>  params = new HashMap<>();
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
                 // the POST parameters:
                 params.put("token", Globals.getToken(c, frag.getActivity()));
                 return params;
@@ -313,7 +308,7 @@ public class GPAAPI {
         request.add(postRequest);
     }
 
-    public static void RemoveCourse(final Context c, final CoursesFragment frag, final Integer id){
+    public static void RemoveCourse(final Context c, final CoursesFragment frag, final Integer id) {
         RequestQueue request = Volley.newRequestQueue(c);
 
         StringRequest postRequest = new StringRequest(Request.Method.POST, Globals.BASE_URL + "removeCourses.php",
@@ -334,9 +329,8 @@ public class GPAAPI {
                 }
         ) {
             @Override
-            protected Map<String, String> getParams()
-            {
-                Map<String, String>  params = new HashMap<>();
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
                 // the POST parameters:
                 params.put("token", Globals.getToken(c, frag.getActivity()));
                 params.put("CID", id.toString());
@@ -351,7 +345,7 @@ public class GPAAPI {
         request.add(postRequest);
     }
 
-    public static void AddCourse(final Context c, final CoursesFragment frag, final String name){
+    public static void AddCourse(final Context c, final CoursesFragment frag, final String name) {
         RequestQueue request = Volley.newRequestQueue(c);
 
         StringRequest postRequest = new StringRequest(Request.Method.POST, Globals.BASE_URL + "createClass.php",
@@ -359,7 +353,7 @@ public class GPAAPI {
                     @Override
                     public void onResponse(String response) {
 
-                        try{
+                        try {
                             JSONObject curr = new JSONObject(response);
                             Globals.user.courses.add(new Course(
                                     curr.getString("class"),
@@ -369,7 +363,7 @@ public class GPAAPI {
 
                             frag.markCourses();
 
-                        } catch (JSONException e){
+                        } catch (JSONException e) {
                             e.printStackTrace();
                         }
 
@@ -383,9 +377,8 @@ public class GPAAPI {
                 }
         ) {
             @Override
-            protected Map<String, String> getParams()
-            {
-                Map<String, String>  params = new HashMap<>();
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
                 // the POST parameters:
                 params.put("token", Globals.getToken(c, frag.getActivity()));
                 params.put("class", name);
@@ -400,7 +393,7 @@ public class GPAAPI {
         request.add(postRequest);
     }
 
-    public static void GetPeople(final Context c, final PeopleFragment frag){
+    public static void GetPeople(final Context c, final PeopleFragment frag) {
         RequestQueue request = Volley.newRequestQueue(c);
 
         StringRequest postRequest = new StringRequest(Request.Method.POST, Globals.BASE_URL + "findStudentsByCourse.php",
@@ -408,11 +401,11 @@ public class GPAAPI {
                     @Override
                     public void onResponse(String response) {
 
-                        try{
+                        try {
                             JSONObject root = new JSONObject(response);
                             JSONArray courses = root.getJSONArray("students");
 
-                            for(int i = 0; i < courses.length(); i++){
+                            for (int i = 0; i < courses.length(); i++) {
                                 JSONObject curr = courses.getJSONObject(i);
                                 frag.people.add(new Student(
                                         curr.getString("username"),
@@ -426,7 +419,7 @@ public class GPAAPI {
 
                             frag.populateList();
 
-                        } catch (JSONException e){
+                        } catch (JSONException e) {
                             e.printStackTrace();
                         }
 
@@ -440,9 +433,8 @@ public class GPAAPI {
                 }
         ) {
             @Override
-            protected Map<String, String> getParams()
-            {
-                Map<String, String>  params = new HashMap<>();
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
                 // the POST parameters:
                 params.put("token", Globals.getToken(c, frag.getActivity()));
                 return params;
@@ -456,7 +448,7 @@ public class GPAAPI {
         request.add(postRequest);
     }
 
-    public static void GetImage(Context c, final Student u, final PeopleFragment parent){
+    public static void GetImage(Context c, final Student u, final PeopleFragment parent) {
         RequestQueue queue = Volley.newRequestQueue(c);
         ImageLoader imageLoader = new ImageLoader(queue, new ImageLoader.ImageCache() {
             @Override

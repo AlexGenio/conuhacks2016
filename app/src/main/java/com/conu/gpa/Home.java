@@ -45,6 +45,11 @@ public class Home extends AppCompatActivity
             ((TextView) navigationView.getHeaderView(0).findViewById(R.id.school)).setText(Globals.user.schoolName);
 
         }
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, new CoursesFragment()).commit();
+        if(getSupportActionBar() != null)
+            getSupportActionBar().setTitle("Courses");
     }
 
     @Override
@@ -75,6 +80,8 @@ public class Home extends AppCompatActivity
         if (id == R.id.action_logout) {
             GPAAPI.Logout(getApplicationContext(), Globals.getToken(getApplicationContext(), this), this);
             Globals.setToken(getApplicationContext(), this, "");
+            Globals.password = null;
+            Globals.username = null;
             return true;
         }
 

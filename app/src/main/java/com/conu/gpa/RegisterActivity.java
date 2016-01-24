@@ -1,30 +1,19 @@
 package com.conu.gpa;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,12 +22,12 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.conu.gpa.classes.Student;
 import com.conu.gpa.networking.GPAAPI;
 import com.soundcloud.android.crop.Crop;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 
 
@@ -59,7 +48,7 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
          Bitmap bm = BitmapFactory.decodeResource(getResources(),
-                R.drawable.test);
+                R.drawable.def);
         setContentView(R.layout.activity_register);
         Button btnCreate =  (Button) findViewById(R.id.create);
         txtEmail = (EditText) findViewById(R.id.email);
@@ -69,7 +58,11 @@ public class RegisterActivity extends AppCompatActivity {
         imgProfile = (ImageView) findViewById((R.id.profile));
         txtDesc = (EditText) findViewById(R.id.desc);
         img = (ImageView) findViewById(R.id.profile);
-        img.setImageBitmap(Globals.getCroppedBitmap(bm));
+        if(Globals.user != null && Globals.user.picture != null) {
+            img.setImageBitmap(Globals.user.picture);
+        }else {
+            img.setImageBitmap(Globals.getCroppedBitmap(bm));
+        }
         img.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -85,23 +78,23 @@ public class RegisterActivity extends AppCompatActivity {
                             return;
                         }
                     }
-                    img.setImageDrawable(null);
                     Crop.pickImage(RegisterActivity.this);
                 } catch (ActivityNotFoundException anfe) {
-                    //Toast toast = Toast.makeText(, "This device doesn't support the crop action!", Toast.LENGTH_SHORT);
-                   // toast.show();
                 }
             }
         });
         btnCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(Globals.user == null){
+                    Globals.user = new Student();
+                }
+                Globals.user.schoolName = txtSchool.getText().toString();
                 Globals.user.name = txtName.getText().toString();
                 Globals.user.username = txtEmail.getText().toString();
                 Globals.user.description = txtDesc.getText().toString();
-                Globals.user.picture = imgProfile.getDrawingCache();
                 if(!attemptRegister() ){
-                    s = Snackbar.make(view, "Connecting to GPA+", Snackbar.LENGTH_LONG);
+                    s = Snackbar.make(view, "Registering to GPA+", Snackbar.LENGTH_LONG);
                     GPAAPI.createAccount(getApplicationContext(),Globals.user.username,Globals.user.picture,txtPass.getText().toString(),
                             Globals.user.schoolName,Globals.user.name,Globals.user.description, RegisterActivity.this);
                     s.show();
@@ -136,8 +129,6 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
             focusView.requestFocus();
         }
         return cancel;
@@ -157,7 +148,7 @@ public class RegisterActivity extends AppCompatActivity {
         if(s.isShown()) {
             s.dismiss();
         }
-        Intent intent = new Intent(this, Home.class);
+        Intent intent = new Intent(this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
@@ -168,25 +159,7 @@ public class RegisterActivity extends AppCompatActivity {
             s.dismiss();
         }
     }
-    /*@Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
-            if (requestCode == CAMERA_CAPTURE) {
-                // get the Uri for the captured image
-                picUri = data.getData();
-                performCrop();
-            }
-            // user is returning from cropping the image
-            else if (requestCode == CROP_PIC) {
-                // get the returned data
-                Bundle extras = data.getExtras();
-                // get the cropped bitmap
-                Bitmap thePic = extras.getParcelable("data");
-                ImageView picView = (ImageView) findViewById(R.id.profile);
-                picView.setImageBitmap(Globals.getCroppedBitmap(thePic));
-            }
-        }
-    }*/
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
         if (requestCode == Crop.REQUEST_PICK && resultCode == RESULT_OK) {
@@ -200,10 +173,16 @@ public class RegisterActivity extends AppCompatActivity {
         Crop.of(source, destination).asSquare().start(this);
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent login = new Intent(this, LoginActivity.class);
+        startActivity(login);
+    }
+
     private void handleCrop(int resultCode, Intent result) {
         if (resultCode == RESULT_OK) {
             ImageView img = (ImageView) findViewById(R.id.profile);
-            //img.setImageURI(Crop.getOutput(result));
             InputStream image_stream = null;
             try {
                 image_stream = getContentResolver().openInputStream(Crop.getOutput(result));
@@ -211,9 +190,9 @@ public class RegisterActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             Bitmap bitmap= BitmapFactory.decodeStream(image_stream );
-            //Globals.user.picture = Globals.getCroppedBitmap(bitmap);
-            img.setImageBitmap(Globals.getCroppedBitmap(bitmap));
-          //  Globals.user.picture = Globals.getCroppedBitmap(bitmap);
+            Globals.user = new Student();
+            Globals.user.picture = Globals.getCircleBitmap(bitmap);
+            img.setImageBitmap(Globals.user.picture);
         } else if (resultCode == Crop.RESULT_ERROR) {
             Toast.makeText(this, Crop.getError(result).getMessage(), Toast.LENGTH_SHORT).show();
         }

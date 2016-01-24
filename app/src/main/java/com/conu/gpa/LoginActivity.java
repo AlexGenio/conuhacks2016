@@ -67,6 +67,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         if(!Globals.getToken(getApplicationContext(), this).isEmpty()){
             skipToHome();
         }
+
+        if(Globals.password != null && Globals.username != null){
+            GPAAPI.Login(getApplicationContext(), Globals.username,
+                    Globals.password, parent);
+        }
+
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         // populateAutoComplete();
@@ -113,9 +119,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     public void afterSuccess(){
-        if(s.isShown()) {
-            s.dismiss();
-        }
         Intent intent = new Intent(this, Home.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
