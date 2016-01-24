@@ -32,6 +32,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.conu.gpa.classes.Student;
+import com.conu.gpa.networking.GPAAPI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +56,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    private Snackbar s;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +64,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        if(!Globals.getToken(getApplicationContext(), this).isEmpty()){
+            skipToHome();
+        }
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         // populateAutoComplete();
@@ -71,22 +77,31 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
+                    if(!attemptLogin()) {
+                        GPAAPI.Login(getApplicationContext(), mEmailView.getText().toString(),
+                                mPasswordView.getText().toString(), parent);
+                        s = Snackbar.make(textView, "Connecting to GPA+", Snackbar.LENGTH_LONG);
+                        s.show();
+                    }
                     return true;
                 }
                 return false;
             }
         });
 
+        mLoginFormView = findViewById(R.id.login_form);
+        mProgressView = findViewById(R.id.login_progress);
+
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                Globals.user = new Student();
-                Globals.user.name = "Jacob Gagné";
-                Globals.user.schoolName = "Concordia University";
-                Intent intent = new Intent(parent, Home.class);
-                startActivity(intent);
+                if(!attemptLogin()) {
+                    s = Snackbar.make(view, "Connecting to GPA+", Snackbar.LENGTH_LONG);
+                    GPAAPI.Login(getApplicationContext(), mEmailView.getText().toString(),
+                            mPasswordView.getText().toString(), parent);
+                    s.show();
+                }
             }
         });
         Button sign_up = (Button) findViewById(R.id.sign_up);
@@ -96,8 +111,29 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 register();
             }
         });
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
+    }
+
+    public void afterSuccess(){
+        if(s.isShown()) {
+            s.dismiss();
+        }
+        Intent intent = new Intent(this, Home.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+    }
+
+    public void afterFailure(){
+        mPasswordView.setError("Invalid password or email");
+        if(s.isShown()) {
+            s.dismiss();
+        }
+    }
+
+    public void skipToHome(){
+        Globals.loadUser(getApplicationContext(), this);
+        Intent intent = new Intent(this, Home.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
     }
 
     private void populateAutoComplete() {
@@ -156,11 +192,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         Intent intent =  new Intent(this,RegisterActivity.class);
         startActivity(intent);
     }
-    private void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
-        }
-
+    private boolean attemptLogin() {
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
@@ -172,21 +204,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
             mEmailView.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
+        }
+        if (TextUtils.isEmpty(password)) {
+            mPasswordView.setError(getString(R.string.error_field_required));
+            focusView = mPasswordView;
             cancel = true;
         }
 
@@ -194,13 +220,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
-        } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
         }
+        return cancel;
     }
 
     private boolean isEmailValid(String email) {

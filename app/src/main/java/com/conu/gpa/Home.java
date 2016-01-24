@@ -11,6 +11,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.conu.gpa.networking.GPAAPI;
+
 public class Home extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -70,7 +72,9 @@ public class Home extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_logout) {
+            GPAAPI.Logout(getApplicationContext(), Globals.getToken(getApplicationContext(), this), this);
+            Globals.setToken(getApplicationContext(), this, "");
             return true;
         }
 
