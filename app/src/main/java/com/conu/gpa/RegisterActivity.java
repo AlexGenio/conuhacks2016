@@ -19,16 +19,21 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.conu.gpa.networking.GPAAPI;
 import com.soundcloud.android.crop.Crop;
 
 import java.io.File;
@@ -40,7 +45,15 @@ import java.io.InputStream;
 public class RegisterActivity extends AppCompatActivity {
     final int CAMERA_CAPTURE = 1;
     final int CROP_PIC = 2;
+    private Snackbar s;
     private Uri picUri;
+    EditText txtEmail;
+    EditText txtName;
+    EditText txtPass;
+    EditText txtSchool;
+    ImageView imgProfile;
+    EditText txtDesc;
+    ImageView img;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +61,14 @@ public class RegisterActivity extends AppCompatActivity {
          Bitmap bm = BitmapFactory.decodeResource(getResources(),
                 R.drawable.test);
         setContentView(R.layout.activity_register);
-        final ImageView img = (ImageView) findViewById(R.id.profile);
+        Button btnCreate =  (Button) findViewById(R.id.create);
+        txtEmail = (EditText) findViewById(R.id.email);
+        txtName = (EditText) findViewById(R.id.name);
+        txtPass = (EditText) findViewById(R.id.password);
+        txtSchool = (EditText) findViewById(R.id.school);
+        imgProfile = (ImageView) findViewById((R.id.profile));
+        txtDesc = (EditText) findViewById(R.id.desc);
+        img = (ImageView) findViewById(R.id.profile);
         img.setImageBitmap(Globals.getCroppedBitmap(bm));
         img.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,7 +93,80 @@ public class RegisterActivity extends AppCompatActivity {
                 }
             }
         });
+        btnCreate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Globals.user.name = txtName.getText().toString();
+                Globals.user.username = txtEmail.getText().toString();
+                Globals.user.description = txtDesc.getText().toString();
+                Globals.user.picture = imgProfile.getDrawingCache();
+                if(!attemptRegister() ){
+                    s = Snackbar.make(view, "Connecting to GPA+", Snackbar.LENGTH_LONG);
+                    GPAAPI.createAccount(getApplicationContext(),Globals.user.username,Globals.user.picture,txtPass.getText().toString(),
+                            Globals.user.schoolName,Globals.user.name,Globals.user.description, RegisterActivity.this);
+                    s.show();
+                }
+            }
+        });
 
+    }
+
+    private boolean attemptRegister() {
+        // Reset errors.
+        txtName.setError(null);
+        txtEmail.setError(null);
+
+        // Store values at the time of the login attempt.
+        String email = txtEmail.getText().toString();
+        String password = txtPass.getText().toString();
+
+        boolean cancel = false;
+        View focusView = null;
+
+        // Check for a valid email address.
+        if (TextUtils.isEmpty(email)) {
+            txtEmail.setError(getString(R.string.error_field_required));
+            focusView = txtEmail;
+            cancel = true;
+        }
+        if (TextUtils.isEmpty(password)) {
+            txtPass.setError(getString(R.string.error_field_required));
+            focusView = txtEmail;
+            cancel = true;
+        }
+
+        if (cancel) {
+            // There was an error; don't attempt login and focus the first
+            // form field with an error.
+            focusView.requestFocus();
+        }
+        return cancel;
+    }
+
+    private boolean isEmailValid(String email) {
+        //TODO: Replace this with your own logic
+        return email.contains("@");
+    }
+
+    private boolean isPasswordValid(String password) {
+        //TODO: Replace this with your own logic
+        return password.length() > 4;
+    }
+
+    public void afterSuccess(){
+        if(s.isShown()) {
+            s.dismiss();
+        }
+        Intent intent = new Intent(this, Home.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+    }
+
+    public void afterFailure(){
+       txtPass.setError("Invalid password or email");
+        if(s.isShown()) {
+            s.dismiss();
+        }
     }
     /*@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -118,7 +211,9 @@ public class RegisterActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             Bitmap bitmap= BitmapFactory.decodeStream(image_stream );
+            //Globals.user.picture = Globals.getCroppedBitmap(bitmap);
             img.setImageBitmap(Globals.getCroppedBitmap(bitmap));
+          //  Globals.user.picture = Globals.getCroppedBitmap(bitmap);
         } else if (resultCode == Crop.RESULT_ERROR) {
             Toast.makeText(this, Crop.getError(result).getMessage(), Toast.LENGTH_SHORT).show();
         }
